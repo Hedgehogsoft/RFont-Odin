@@ -90,7 +90,7 @@ font :: struct {
 
 glyph_fallback_callback :: #type proc "c" (renderer: ^renderer, font: ^font, codepoint : u32, size: c.size_t) -> glyph
 
-@(default_calling_convention="c", link_prefix="RSGL_")
+@(default_calling_convention="c", link_prefix="RFont_")
 foreign {
     renderer_size :: proc(renderer: ^renderer) -> c.size_t ---
 
@@ -127,7 +127,7 @@ foreign {
     * @pram ptr Pointer to the given font structure
     * @return returns the same pointer or NULL if the font failed to load
     */
-    font_init_ptr :: proc(renderer: ^renderer, font_name: cstring, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t, font: ^font) -> ^font ---
+    font_init_ptr :: proc(renderer: ^renderer, font_name: cstring, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t, fontptr: ^font) -> ^font ---
 
     /**
     * @brief Init font stucture with raw TTF data.
