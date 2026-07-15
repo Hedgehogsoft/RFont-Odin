@@ -209,7 +209,10 @@ foreign native {
     * @param sizeLen length of the size array
     */
     font_add_string_len :: proc(renderer: ^renderer, font: ^font, string: cstring, strLen: c.size_t, sizes: ^c.size_t, sizeLen: c.size_t) ---
+}
 
+@(default_calling_convention="c", link_prefix="RFont")
+foreign native {
     /**
     * @brief Get the area of the text based on the size using the font.
     * @param font The font stucture to use for drawing
