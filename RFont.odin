@@ -20,6 +20,7 @@ when ODIN_OS == .Windows {
 }
 
 import "core:c"
+import "core:strings"
 
 texture :: c.size_t
 surface :: rawptr
@@ -217,7 +218,7 @@ foreign native {
     * @param [OUTPUT] the output width
     * @param [OUTPUT] the output height
     */
-    text_area :: proc(renderer: ^renderer, font: ^font, text: cstring, size: u32, w: ^u32, h: ^u32) ---
+    _text_area :: proc(renderer: ^renderer, font: ^font, text: cstring, size: u32, w: ^u32, h: ^u32) ---
 
     /**
     * @brief Get the area of the text based on the size using the font, using a given length.
@@ -228,7 +229,7 @@ foreign native {
     * @param [OUTPUT] the output width
     * @param [OUTPUT] the output height
     */
-    text_area_spacing :: proc(renderer: ^renderer, font: ^font, text: cstring, spacing: c.float, size: u32, w: ^u32, h: ^u32) ---
+    _text_area_spacing :: proc(renderer: ^renderer, font: ^font, text: cstring, spacing: c.float, size: u32, w: ^u32, h: ^u32) ---
 
     /**
     * @brief Get the area of the text based on the size using the font, using a given length.
@@ -241,7 +242,7 @@ foreign native {
     * @param [OUTPUT] the output width
     * @param [OUTPUT] the output height
     */
-    text_area_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, size: u32, stopNL : c.size_t, spacing: c.float, w: ^u32, h: ^u32) ---
+    _text_area_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, size: u32, stopNL : c.size_t, spacing: c.float, w: ^u32, h: ^u32) ---
 
     /**
     * @brief Draw a text string using the font.
@@ -252,7 +253,7 @@ foreign native {
     * @param size The size of the text
     * @return the number of verts rendered
     */
-    draw_text :: proc(renderer: ^renderer, font: ^font, text: cstring, x: c.float, y: c.float, size: u32) -> c.size_t ---
+    _draw_text :: proc(renderer: ^renderer, font: ^font, text: cstring, x: c.float, y: c.float, size: u32) -> c.size_t ---
 
     /**
     * @brief Draw a text string using the font and a given spacing.
@@ -264,7 +265,7 @@ foreign native {
     * @param spacing The spacing of the text
     * @return the number of verts rendered
     */
-    draw_text_spacing :: proc(renderer: ^renderer, font: ^font, text: cstring, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
+    _draw_text_spacing :: proc(renderer: ^renderer, font: ^font, text: cstring, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
 
     /**
     * @brief Draw a text string using the font using a given length and a given spacing.
@@ -277,10 +278,87 @@ foreign native {
     * @param spacing The spacing of the text
     * @return the number of verts rendered
     */
-    draw_text_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
+    _draw_text_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
 }
 
-main :: proc() {
-    procptr : renderer_proc
-    renderer := renderer_init(procptr)
+/**
+* @brief Get the area of the text based on the size using the font.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param size The size of the text
+* @param [OUTPUT] the output width
+* @param [OUTPUT] the output height
+*/
+text_area :: proc(renderer: ^renderer, font: ^font, text: string, size: u32, w: ^u32, h: ^u32) {
+   _text_area_len(renderer, font, strings.unsafe_string_to_cstring(text), len(text), size, 0, 0, w, h)
+}
+
+/**
+* @brief Get the area of the text based on the size using the font, using a given length.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param size The size of the text
+* @param spacing The spacing of the text
+* @param [OUTPUT] the output width
+* @param [OUTPUT] the output height
+*/
+text_area_spacing :: proc(renderer: ^renderer, font: ^font, text: string, spacing: c.float, size: u32, w: ^u32, h: ^u32) {
+   _text_area_len(renderer, font, strings.unsafe_string_to_cstring(text), len(text), size, 0, 0, w, h)
+}
+
+/**
+* @brief Get the area of the text based on the size using the font, using a given length.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param len The length of the string
+* @param size The size of the text
+* @param stopNL the number of \n s until it stops (0 = don't stop until the end)
+* @param spacing The spacing of the text
+* @param [OUTPUT] the output width
+* @param [OUTPUT] the output height
+*/
+text_area_len :: proc(renderer: ^renderer, font: ^font, text: string, len: c.size_t, size: u32, stopNL : c.size_t, spacing: c.float, w: ^u32, h: ^u32) {
+   _text_area_len(renderer, font, strings.unsafe_string_to_cstring(text), len, size, stopNL, spacing, w, h)
+}
+
+/**
+* @brief Draw a text string using the font.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param x The x position of the text
+* @param y The y position of the text
+* @param size The size of the text
+* @return the number of verts rendered
+*/
+draw_text :: proc(renderer: ^renderer, font: ^font, text: string, x: c.float, y: c.float, size: u32) -> c.size_t {
+   return _draw_text_len(renderer, font, strings.unsafe_string_to_cstring(text), len(text), x, y, size, 0)
+}
+
+/**
+* @brief Draw a text string using the font and a given spacing.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param x The x position of the text
+* @param y The y position of the text
+* @param size The size of the text
+* @param spacing The spacing of the text
+* @return the number of verts rendered
+*/
+draw_text_spacing :: proc(renderer: ^renderer, font: ^font, text: string, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t {
+   return _draw_text_len(renderer, font, strings.unsafe_string_to_cstring(text), len(text), x, y, size, spacing)
+}
+
+/**
+* @brief Draw a text string using the font using a given length and a given spacing.
+* @param font The font stucture to use for drawing
+* @param text The string to draw
+* @param len The length of the string
+* @param x The x position of the text
+* @param y The y position of the text
+* @param size The size of the text
+* @param spacing The spacing of the text
+* @return the number of verts rendered
+*/
+draw_text_len :: proc(renderer: ^renderer, font: ^font, text: string, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t {
+   return _draw_text_len(renderer, font, strings.unsafe_string_to_cstring(text), len, x, y, size, spacing)
 }
