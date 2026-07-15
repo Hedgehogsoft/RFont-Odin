@@ -91,7 +91,7 @@ font :: struct {
 glyph_fallback_callback :: #type proc "c" (renderer: ^renderer, font: ^font, codepoint : u32, size: c.size_t) -> glyph
 
 @(default_calling_convention="c", link_prefix="RFont_")
-foreign {
+foreign native {
     renderer_size :: proc(renderer: ^renderer) -> c.size_t ---
 
     renderer_init :: proc(procdef: renderer_proc) -> ^renderer ---
@@ -278,4 +278,9 @@ foreign {
     * @return the number of verts rendered
     */
     draw_text_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
+}
+
+main :: proc() {
+    procptr : renderer_proc
+    renderer := renderer_init(procptr)
 }
