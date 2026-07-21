@@ -137,7 +137,7 @@ foreign native {
     * @param atlasHeight The height of the atlas texture. (This should == the max text size)
     * @return The `font` created from the data.
     */
-    font_init_data :: proc(renderer: ^renderer, font_data: []u8, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t) -> ^font ---
+    font_init_data :: proc(renderer: ^renderer, font_data: [^]u8, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t) -> ^font ---
 
     /**
     * @brief Init a given font stucture with raw TTF data.
@@ -147,7 +147,7 @@ foreign native {
     * @return The `font` created from the data.
     * @return returns the same pointer or NULL if the font failed to load
     */
-    font_init_data_ptr :: proc(renderer: ^renderer, font_data: []u8, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t, ptr: ^font) -> ^font ---
+    font_init_data_ptr :: proc(renderer: ^renderer, font_data: [^]u8, maxHeight: u32, atlasWidth: c.size_t, atlasHeight: c.size_t, ptr: ^font) -> ^font ---
 
     /**
     * @brief Free data from the font stucture, including the stucture itself
@@ -190,25 +190,6 @@ foreign native {
     * @return The `glyph` created from the data and added to the atlas.
     */
     font_add_codepoint_ex :: proc(renderer: ^renderer, font: ^font, codepoint: u32, size: c.size_t, fallback: b8) -> glyph ---
-
-    /**
-    * @brief Add a string to the font's atlas.
-    * @param font The font to use.
-    * @param ch The character to add to the atlas.
-    * @param sizes The supported sizes of the character.
-    * @param sizeLen length of the size array
-    */
-    font_add_string :: proc(renderer: ^renderer, font: ^font, string: cstring, sizes: c.size_t, sizeLen : c.size_t) ---
-
-    /**
-    * @brief Add a string to the font's atlas based on a given string length.
-    * @param font The font to use.
-    * @param ch The character to add to the atlas.
-    * @param strLen length of the string
-    * @param sizes The supported sizes of the character.
-    * @param sizeLen length of the size array
-    */
-    font_add_string_len :: proc(renderer: ^renderer, font: ^font, string: cstring, strLen: c.size_t, sizes: ^c.size_t, sizeLen: c.size_t) ---
 }
 
 @(default_calling_convention="c", link_prefix="RFont")
@@ -282,6 +263,25 @@ foreign native {
     * @return the number of verts rendered
     */
     _draw_text_len :: proc(renderer: ^renderer, font: ^font, text: cstring, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t ---
+
+    /**
+    * @brief Add a string to the font's atlas.
+    * @param font The font to use.
+    * @param ch The character to add to the atlas.
+    * @param sizes The supported sizes of the character.
+    * @param sizeLen length of the size array
+    */
+    _font_add_string :: proc(renderer: ^renderer, font: ^font, string: cstring, sizes: ^c.size_t, sizeLen : c.size_t) ---
+
+    /**
+    * @brief Add a string to the font's atlas based on a given string length.
+    * @param font The font to use.
+    * @param ch The character to add to the atlas.
+    * @param strLen length of the string
+    * @param sizes The supported sizes of the character.
+    * @param sizeLen length of the size array
+    */
+    _font_add_string_len :: proc(renderer: ^renderer, font: ^font, string: cstring, strLen: c.size_t, sizes: ^c.size_t, sizeLen: c.size_t) ---
 }
 
 /**
@@ -365,3 +365,27 @@ draw_text_spacing :: proc(renderer: ^renderer, font: ^font, text: string, x: c.f
 draw_text_len :: proc(renderer: ^renderer, font: ^font, text: string, len: c.size_t, x: c.float, y: c.float, size: u32, spacing: c.float) -> c.size_t {
    return _draw_text_len(renderer, font, strings.unsafe_string_to_cstring(text), len, x, y, size, spacing)
 }
+
+
+/**
+* @brief Add a string to the font's atlas.
+* @param font The font to use.
+* @param ch The character to add to the atlas.
+* @param sizes The supported sizes of the character.
+* @param sizeLen length of the size array
+*/
+font_add_string :: proc(renderer: ^renderer, font: ^font, string: string, sizes: []uint) { 
+    _font_add_string_len(renderer, font, strings.unsafe_string_to_cstring(string), len(string), raw_data(sizes), len(sizes))
+} 
+
+/**
+* @brief Add a string to the font's atlas based on a given string length.
+* @param font The font to use.
+* @param ch The character to add to the atlas.
+* @param strLen length of the string
+* @param sizes The supported sizes of the character.
+* @param sizeLen length of the size array
+*/
+font_add_string_len :: proc(renderer: ^renderer, font: ^font, string: string, length: uint, sizes: []uint) {
+    _font_add_string_len(renderer, font, strings.unsafe_string_to_cstring(string), length, raw_data(sizes), len(sizes))
+} 
