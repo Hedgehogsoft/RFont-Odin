@@ -156,6 +156,18 @@ foreign native {
     font_free :: proc(renderer: ^renderer, font: ^font) ---
 
     /**
+    * @brief Free data from the font stucture only, based on user owned data does not free the structure or user owned data)
+    * @param font The strucutre with the font data to free
+    */
+    font_free_data_ptr :: proc(renderer: ^renderer, font: ^font) ---
+
+    /**
+    * @brief Free data from the font, based on user owned data (does not free the user owned data)
+    * @param font The strucutre with the font data to free
+    */
+    font_data_free :: proc(renderer: ^renderer, font: ^font) ---
+
+    /**
     * @brief Free data from the font stucture only (not including the stucture)
     * @param font The strucutre with the font data  to free
     */
