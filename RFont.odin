@@ -7,11 +7,11 @@ when ODIN_OS == .Windows {
 		}
 } else when ODIN_OS == .Darwin {
     foreign import native {
-        "lib/RFont.a",
+        "lib/RFont_osx.a",
     }
 } else when (ODIN_OS == .Linux || ODIN_OS == .FreeBSD || ODIN_OS == .OpenBSD) {
     foreign import native {
-        "lib/RFont.a",
+        "lib/RFont_linux.a",
     }
 } else when (ODIN_OS == .JS) {
     foreign import native {
@@ -49,7 +49,7 @@ renderer_proc :: struct {
 	set_color : #type proc "c" (ctx: rawptr, r : c.float, g : c.float, b : c.float, a : c.float), /*!< set the current rendering color */
 	set_surface : #type proc "c" (ctx: rawptr, surface: surface),
 	freePtr : #type proc "c" (ctx: rawptr) /* free any memory the renderer might need to free */
-} 
+}
 
 renderer :: struct {
 	ctx: rawptr, /*!< source renderer data */
@@ -386,9 +386,9 @@ draw_text_len :: proc(renderer: ^renderer, font: ^font, text: string, len: c.siz
 * @param sizes The supported sizes of the character.
 * @param sizeLen length of the size array
 */
-font_add_string :: proc(renderer: ^renderer, font: ^font, string: string, sizes: []uint) { 
+font_add_string :: proc(renderer: ^renderer, font: ^font, string: string, sizes: []uint) {
     _font_add_string_len(renderer, font, strings.unsafe_string_to_cstring(string), len(string), raw_data(sizes), len(sizes))
-} 
+}
 
 /**
 * @brief Add a string to the font's atlas based on a given string length.
@@ -400,4 +400,4 @@ font_add_string :: proc(renderer: ^renderer, font: ^font, string: string, sizes:
 */
 font_add_string_len :: proc(renderer: ^renderer, font: ^font, string: string, length: uint, sizes: []uint) {
     _font_add_string_len(renderer, font, strings.unsafe_string_to_cstring(string), length, raw_data(sizes), len(sizes))
-} 
+}
